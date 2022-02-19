@@ -1,6 +1,6 @@
 
 
-var socket = io('wss://location.hostname)
+var socket = io('wss://'+location.hostname)
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=1600
