@@ -1,11 +1,16 @@
 
 
+
+
+
 function get_p_in_world(x,y,camera=camera){
-	let fx=(x-parseFloat(canvas.style.left))*ww/canvas.width-camera.middle.x+camera.position.x
-	let fy=(y-parseFloat(canvas.style.top))*ww/canvas.width-camera.middle.y+camera.position.y
+	let fx=((x-parseFloat(canvas.style.left))*ww/canvas.width-camera.middle.x)/camera.scale.x+camera.position.x
+	let fy=((y-parseFloat(canvas.style.top))*ww/canvas.width-camera.middle.y)/camera.scale.y+camera.position.y
 	return new vec2(fx,fy)
 }
 function mysize(){
+	
+
 	if(window.innerHeight/window.innerWidth>=wh/ww){
 		canvas.style.width=window.innerWidth+'px'
 		canvas.style.height=wh*window.innerWidth/ww+'px'
@@ -40,7 +45,7 @@ function mysize(){
 	ctx.save()
 	
 }
-function iscomputer(){
+function is_computer(){
 	let iscom=true
 	let phone_char= ['Android', 'webOS', 'iPhone', 'iPad', 'iPod', 'BlackBerry', 'Windows Phone']
 	for(let i of phone_char){
@@ -87,7 +92,7 @@ class Arrow{
 	}
 }
 class Button{
-	constructor(x,y,width,height,text,font=height*0.8,color='white',text_color='rgb(100,100,100)'){
+	constructor(camera,x,y,width,height,text,color='white',text_color='rgb(100,100,100)',font=height*0.8){
 		this.position=new vec2(x,y)
 		this.scale=new vec2(width,height)
 		this.color=color
@@ -96,26 +101,27 @@ class Button{
 		this.font=font
 		this.is_on=false
 		this.ispress=false
-		this.down=(e)=>{this.color='blue'}
-		this.up=(e)=>{this.color='white'}
-		this.click=(e)=>{this.color='red'}
+		this.down=(e)=>{this.color='rgb(150,0,0)'}
+		this.up=(e)=>{this.color=color}
+		this.click=(e)=>{}
+		this.camera=camera
 		
-		if(is_computer){
+		if(is_computer()){
 			this.mousedown=(e)=>{
 				this.ispress=true
 				
-				let pp=get_p_in_world(e.pageX,e.pageY)
-				if(pp.x>this.position.x&&pp.x<this.position.x+this.scale.x&&pp.y>this.position.y&&pp.y<this.position.y+this.scale.y){
+				let pp=get_p_in_world(e.pageX,e.pageY,this.camera)
+				if(this.ispointinpath(pp)){
 					this.ispress=true
 					this.down(e)
 				}
 			}
 			this.mouseup=(e)=>{
-				let pp=get_p_in_world(e.pageX,e.pageY)
+				let pp=get_p_in_world(e.pageX,e.pageY,this.camera)
 				if(this.ispress){
 					this.up(e)
 					this.ispress=false
-					if(pp.x>this.position.x&&pp.x<this.position.x+this.scale.x&&pp.y>this.position.y&&pp.y<this.position.y+this.scale.y){
+					if(this.ispointinpath(pp)){
 						this.click(e)
 					}
 					
@@ -124,8 +130,8 @@ class Button{
 			}
 		}else{
 			this.touchstart=(e)=>{
-				let pp=get_p_in_world(e.touches[0].pageX,e.touches[0].pageY)
-				if(pp.x>this.position.x&&pp.x<this.position.x+this.scale.x&&pp.y>this.position.y&&pp.y<this.position.y+this.scale.y){
+				let pp=get_p_in_world(e.touches[0].pageX,e.touches[0].pageY,this.camera)
+				if(this.ispointinpath(pp)){
 					this.ispress=true
 					this.down(e)
 				}
@@ -134,10 +140,10 @@ class Button{
 				
 				if(this.ispress){
 					this.up(e)
-					let pp=get_p_in_world(e.changedTouches[0].pageX,e.changedTouches[0].pageY)
+					let pp=get_p_in_world(e.changedTouches[0].pageX,e.changedTouches[0].pageY,this.camera)
 					
 					this.ispress=false
-					if(pp.x>this.position.x&&pp.x<this.position.x+this.scale.x&&pp.y>this.position.y&&pp.y<this.position.y+this.scale.y){
+					if(this.ispointinpath(pp)){
 						this.click(e)
 					}
 
@@ -151,15 +157,15 @@ class Button{
 	}draw(){
 		ctx.beginPath()
 		ctx.fillStyle=this.color
-		ctx.fillRect(this.position.x,this.position.y,this.scale.x,this.scale.y)
+		ctx.fillRect(this.position.x-this.scale.x/2,this.position.y-this.scale.y/2,this.scale.x,this.scale.y)
 		ctx.fillStyle=this.text_color
 		ctx.font=this.font+'px Arial'
 		let ax=(this.scale.x-ctx.measureText(this.text).width)/2
-		ctx.fillText(this.text,this.position.x+ax,this.position.y+this.font)
+		ctx.fillText(this.text,this.position.x-this.scale.x/2+ax,this.position.y-this.scale.y/2+this.font)
 	}
 	on(){
 		this.is_on=true
-		if(is_computer){
+		if(is_computer()){
 			window.addEventListener('mousedown',this.mousedown)
 			window.addEventListener('mouseup',this.mouseup)
 		}else{
@@ -171,13 +177,21 @@ class Button{
 	}
 	off(){
 		this.is_on=false
-		if(is_computer){
+		if(is_computer()){
 			window.removeEventListener('mousedown',this.mousedown)
 			window.removeEventListener('mouseup',this.mouseup)
 		}else{
 			window.removeEventListener('touchstart',this.touchstart)
 			window.removeEventListener('touchend',this.touchend)
 		}
+	}
+	ispointinpath(pp){
+		if(pp.x>this.position.x-this.scale.x/2&&pp.x<this.position.x+this.scale.x/2&&pp.y>this.position.y-this.scale.y/2&&pp.y<this.position.y+this.scale.y/2){
+			return true
+		}else{
+			return false
+		}
+
 	}
 
 }
@@ -262,7 +276,7 @@ class Slider{
 	}
 	on(){
 		this.is_on=true
-		if(is_computer){
+		if(is_computer()){
 			window.addEventListener('mousedown',this.mousedown)
 			window.addEventListener('mouseup',this.mouseup)
 			window.addEventListener('mousemove',this.mousemove)
@@ -275,7 +289,7 @@ class Slider{
 	}
 	off(){
 		this.is_on=false
-		if(is_computer){
+		if(is_computer()){
 			window.removeEventListener('mousedown',this.mousedown)
 			window.removeEventListener('mouseup',this.mouseup)
 			window.removeEventListener('mousemove',this.mousemove)
@@ -406,11 +420,34 @@ function grid(color='black',width=0.2,interval=10){
 
 
 //背景
-function background(color,sx=0,sy=0,width=ww,height=wh){
-	ctx.save()
+function background(color,camera,width=ww,height=wh){
+	width/=camera.scale.x
+	height/=camera.scale.y
+	let left=camera.position.x-width/2
+    let top=camera.position.y-height/2
 	ctx.fillStyle=color
-	ctx.fillRect(sx,sy,width,height)
-	ctx.restore()
+	ctx.fillRect(left,top,width,height)
+}
+//格線
+function grid(blank,color,camera,width=ww,height=wh){
+	width/=camera.scale.x
+	height/=camera.scale.y
+	let left=camera.position.x-width/2
+    let top=camera.position.y-height/2
+    left_=left-left%blank
+    top_=top-top%blank
+    ctx.beginPath()
+    for(let i=left_;i<left+width;i+=blank){
+        ctx.moveTo(i,top)
+        ctx.lineTo(i,top+height)
+    }
+    for(let i=top_;i<top+height;i+=blank){
+        ctx.moveTo(left,i)
+        ctx.lineTo(left+width,i)
+    }
+    ctx.strokeStyle=color
+    ctx.lineWidth=1
+    ctx.stroke()
 }
 
 //群組
