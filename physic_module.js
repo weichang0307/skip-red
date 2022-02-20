@@ -94,7 +94,7 @@ class world{
 			}
 		}
 	}
-	update(time){
+	async update(time){
 		let time_=time/this.iteration
 		for(let k=0;k<this.iteration;k++){
 			//約束
