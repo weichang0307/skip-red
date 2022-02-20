@@ -396,26 +396,6 @@ class imgobj{
 
 
 
-//格線
-function grid(color='black',width=0.2,interval=10){
-	let ww=window.innerWidth
-	let wh=window.innerHeight
-	ctx.lineWidth=width
-	ctx.strokeStyle=color
-	for (var i=interval;i<ww;i+=interval) {
-		ctx.beginPath()
-		ctx.moveTo(i,0)
-		ctx.lineTo(i,wh)		
-		ctx.stroke()
-	}
-	for (var i=interval;i<ww;i+=interval) {
-		ctx.beginPath()
-		ctx.moveTo(0,i)
-		ctx.lineTo(ww,i)		
-		ctx.stroke()
-	}
-}
-
 
 
 
@@ -429,7 +409,7 @@ function background(color,camera,width=ww,height=wh){
 	ctx.fillRect(left,top,width,height)
 }
 //格線
-function grid(blank,color,camera,width=ww,height=wh){
+function grid(blank,color,camera,linewidth=1,width=ww,height=wh){
 	width/=camera.scale.x
 	height/=camera.scale.y
 	let left=camera.position.x-width/2
@@ -446,7 +426,7 @@ function grid(blank,color,camera,width=ww,height=wh){
         ctx.lineTo(left+width,i)
     }
     ctx.strokeStyle=color
-    ctx.lineWidth=1
+    ctx.lineWidth=linewidth
     ctx.stroke()
 }
 

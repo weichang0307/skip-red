@@ -1,7 +1,7 @@
 
 
-//let socket = io('ws://localhost:3000')
-let socket = io('wss://'+location.hostname)
+let socket = io('ws://localhost:3000')
+//let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -81,6 +81,7 @@ function draw(){
     ctx.fillStyle='black'
     background('black',camera)
     grid(50,'rgb(100,100,100)',camera)
+    grid(250,'rgb(100,100,100)',camera,2)
     
     
     for(let i of objs){
