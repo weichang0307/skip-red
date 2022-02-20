@@ -7,29 +7,56 @@ class Controler{
         this.ispress=false
 	}
     on(){
-        window.addEventListener('mousedown',(e)=>{
-            this.ispress=true
-            controler.visible=true
-            let p=get_p_in_world(e.pageX,e.pageY,this.camera)
-            controler.position.x=p.x
-            controler.position.y=p.y
-        })
-        window.addEventListener('mousemove',(e)=>{
-            if(this.ispress){
-                let btnp=get_p_in_world(e.pageX,e.pageY,this.camera)
-                let dis=btnp.minus(controler.position)
-                if(dis.long()>100){
-                    dis.scale_in(100/dis.long())
+        if(is_computer()){
+            window.addEventListener('mousedown',(e)=>{
+                this.ispress=true
+                controler.visible=true
+                let p=get_p_in_world(e.pageX,e.pageY,this.camera)
+                controler.position.x=p.x
+                controler.position.y=p.y
+            })
+            window.addEventListener('mousemove',(e)=>{
+                if(this.ispress){
+                    let btnp=get_p_in_world(e.pageX,e.pageY,this.camera)
+                    let dis=btnp.minus(controler.position)
+                    if(dis.long()>100){
+                        dis.scale_in(100/dis.long())
+                    }
+                    controler.btn_position=dis
                 }
-                controler.btn_position=dis
-            }
-        })
-        window.addEventListener('mouseup',(e)=>{
-            
-            this.ispress=false
-            controler.visible=false
-            controler.btn_position.scale_in(0)
-        })
+            })
+            window.addEventListener('mouseup',(e)=>{
+                
+                this.ispress=false
+                controler.visible=false
+                controler.btn_position.scale_in(0)
+            })
+        }else{
+            window.addEventListener('touchstart',(e)=>{
+                this.ispress=true
+                controler.visible=true
+                let p=get_p_in_world(e.touches[0].pageX,e.touches[0].pageY,this.camera)
+                controler.position.x=p.x
+                controler.position.y=p.y
+            })
+            window.addEventListener('touchmove',(e)=>{
+                if(this.ispress){
+                    let btnp=get_p_in_world(e.touches[0].pageX,e.touches[0].pageY,this.camera)
+                    let dis=btnp.minus(controler.position)
+                    if(dis.long()>100){
+                        dis.scale_in(100/dis.long())
+                    }
+                    controler.btn_position=dis
+                }
+            })
+            window.addEventListener('touchend',(e)=>{
+                
+                this.ispress=false
+                controler.visible=false
+                controler.btn_position.scale_in(0)
+            })
+        }
+        
     }
 	draw(){
 		if(this.visible){
