@@ -61,16 +61,23 @@ class Inputer{
         this.choose=false
         this.camera=camera
         this.error=''
+        this.input=document.getElementById('input')
+        this.input.oninput=()=>{
+            this.value=this.input.value
+        }
+
         this.click=(e)=>{
             let pp=get_p_in_world(e.pageX,e.pageY,this.camera)
             let left=this.position.x-this.scale.x/2
             let top=this.position.y-this.scale.y/2
             if(left<pp.x&&pp.x<left+this.scale.x&&top<pp.y&&pp.y<top+this.scale.y){
                 this.choose=true
+                this.input.focus()
             }else{
                 this.choose=false
             }
-        }
+            
+        }/*
         this.keydown=(e)=>{
             
             if(this.choose&&e.key.length===1){
@@ -81,7 +88,7 @@ class Inputer{
                 this.value=this.value.slice(0,this.value.length-1)
             }
             
-        }
+        }*/
     }
     draw(){
         if(this.visible){
@@ -100,12 +107,12 @@ class Inputer{
     }
     on(){
         window.addEventListener('click',this.click)
-        window.addEventListener('keydown',this.keydown)
+        //window.addEventListener('keydown',this.keydown)
     }
     off(){
         this.choose=false
         window.removeEventListener('click',this.click)
-        window.removeEventListener('keydown',this.keydown)
+        //window.removeEventListener('keydown',this.keydown)
     }
     
 }
