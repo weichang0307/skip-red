@@ -21,7 +21,7 @@ btn_start.on()
 let id=0
 let start=false
 let objs=[]
-
+let players=[]
 
 
 
@@ -59,6 +59,7 @@ function update(){
             velocity:controler.btn_position.scale(0.001)
         }
         socket.emit('update',JSON.stringify(mes))
+        
     }
     
     
@@ -106,6 +107,21 @@ function draw(){
     }
     
     camera.end(ctx)
+    ctx.globalAlpha=0.5
+    ctx.fillStyle='yellow'
+    ctx.fillRect(ww-200,0,200,30)
+    ctx.fillStyle='white'
+    ctx.fillRect(ww-200,30,200,60)
+    ctx.fillStyle='rgb(150,150,150)'
+    ctx.fillRect(ww-200,90,200,210)
+    ctx.globalAlpha=1
+    ctx.fillStyle='white'
+    ctx.font=20+'px Arial'
+    for(let i=0;i<players.length;i++){
+        if(i<10){
+            ctx.fillText(i+1+'. '+players[i],ww-200,i*30+20)
+        }
+    }
     requestAnimationFrame(draw)
 }
 
@@ -120,6 +136,9 @@ function socket_init(){
     })
     socket.on('end',(data)=>{
         end_game()
+    })
+    socket.on('rank',(data)=>{
+        players=JSON.parse(data)
     })
 }
 function start_game(){
@@ -211,5 +230,5 @@ function draw_helper(obj,fill=true,through=1,ctx_=ctx){
 
 
 init()
-draw()
 setInterval(update,1000/fps);
+draw()

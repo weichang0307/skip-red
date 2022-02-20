@@ -71,6 +71,17 @@ class Inputer{
                 this.choose=false
             }
         }
+        this.keydown=(e)=>{
+            
+            if(this.choose&&e.key.length===1){
+                this.value+=e.key
+            }
+            if(this.choose&&e.key==='Backspace'&&this.value.length>0){
+                console.log(1)
+                this.value=this.value.slice(0,this.value.length-1)
+            }
+            
+        }
     }
     draw(){
         if(this.visible){
@@ -89,21 +100,12 @@ class Inputer{
     }
     on(){
         window.addEventListener('click',this.click)
-        window.addEventListener('keydown',(e)=>{
-            
-            if(this.choose&&e.key.length===1){
-                this.value+=e.key
-            }
-            if(this.choose&&e.key==='Backspace'&&this.value.length>0){
-                console.log(1)
-                this.value=this.value.slice(0,this.value.length-1)
-            }
-            
-        })
+        window.addEventListener('keydown',this.keydown)
     }
     off(){
         this.choose=false
         window.removeEventListener('click',this.click)
+        window.removeEventListener('keydown',this.keydown)
     }
     
 }

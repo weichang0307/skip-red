@@ -9,15 +9,23 @@ const server = app.listen(PORT,function () {
 
 })
 
+
+
+
 //route
 app.use('/',express.static('page'))
 //websocket
 const socketio=require('socket.io')
 var io= socketio(server);
 io.on('connection',(socket)=>{
+	let arr=[]
+	for(let i=0;i<players.length;i++){
+		arr.push(players[i].name)
+	}
+	io.emit('rank',JSON.stringify(arr))
 	socket.on('start',(data)=>{
-		console.log(data)
 		socket.join('room')
+
 		let np=new Physic.ball(0,0,50,100,new vec2(0.5,0.5))
 		np.id=socket.id
 		np.socket=socket
@@ -40,6 +48,11 @@ io.on('connection',(socket)=>{
 		objs.push(np)
 		world.add(np)
 		socket.emit('init',{id:socket.id})
+		let arr=[]
+		for(let i=0;i<players.length;i++){
+			arr.push(players[i].name)
+		}
+		io.emit('rank',JSON.stringify(arr))
 
 	})
 	socket.on('update',(data)=>{
@@ -63,13 +76,12 @@ io.on('connection',(socket)=>{
 //Game
 let fps=50
 let objs=[]
-let things=[]
 let players=[]
 let walls=[]
 let vec2=require('./vec2_module')
 let Physic=require('./physic_module')
 const res = require('express/lib/response')
-let world=new Physic.world(0,0,7)
+let world=new Physic.world(0,0,1)
 let space={x:10000,y:10000}
 function init(){
 	
@@ -138,8 +150,19 @@ function gameover(socket){
 		if(objs[i].id===socket.id){
 			world.delete(objs[i])
 			objs.splice(i,1)
+			
 		}
 	}
+	for(let i=0;i<players.length;i++){
+		if(players[i].id===socket.id){
+			players.splice(i,1)
+		}
+	}
+	let arr=[]
+	for(let i=0;i<players.length;i++){
+		arr.push(players[i].name)
+	}
+	io.emit('rank',JSON.stringify(arr))
 }
 function find_obj_by_id(id){
     for(let i of objs){
