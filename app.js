@@ -18,11 +18,13 @@ app.use('/',express.static('page'))
 const socketio=require('socket.io')
 var io= socketio(server);
 io.on('connection',(socket)=>{
+	let message=create__message(objs)
+	io.emit('create',message)
 	let arr=[]
 	for(let i=0;i<players.length;i++){
 		arr.push(players[i].name)
 	}
-	io.emit('rank',JSON.stringify(arr))
+	io.emit('rank',arr)
 	socket.on('start',(data)=>{
 		socket.join('room')
 
@@ -53,6 +55,8 @@ io.on('connection',(socket)=>{
 			arr.push(players[i].name)
 		}
 		io.emit('rank',arr)
+		let message=create__message(objs)
+		io.emit('create',message)
 
 	})
 	socket.on('update',(data)=>{
@@ -119,7 +123,8 @@ function init(){
 function update(){
 
 	world.update(1000/fps)
-	io.emit('update',create_client_message(objs))
+	let message=update_message(objs)
+	io.emit('update',message)
 		
     
 }
@@ -128,7 +133,7 @@ function update(){
 
 
 
-function create_client_message(objs){
+function create__message(objs){
     let arr=[]
     for(let i of objs){
 		let obj
@@ -138,6 +143,16 @@ function create_client_message(objs){
 			obj={id:i.id,name:i.name,type:i.type,position:{x:i.position.x,y:i.position.y},radius:i.radius}
 		}
         
+        arr.push(obj)
+    }
+    return arr
+
+}
+function update_message(objs){
+    let arr=[]
+    for(let i of objs){
+		let obj
+		obj={id:i.id,position:{x:i.position.x,y:i.position.y}}
         arr.push(obj)
     }
     return arr
@@ -161,7 +176,9 @@ function gameover(socket){
 	for(let i=0;i<players.length;i++){
 		arr.push(players[i].name)
 	}
-	io.emit('rank',JSON.stringify(arr))
+	io.emit('rank',arr)
+	let message=create__message(objs)
+	io.emit('create',message)
 }
 function find_obj_by_id(id){
     for(let i of objs){

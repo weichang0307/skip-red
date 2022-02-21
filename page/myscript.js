@@ -1,7 +1,7 @@
 
 
-//let socket = io('ws://localhost:3000')
-let socket = io('wss://skip-red.herokuapp.com/') 
+let socket = io('ws://localhost:3000')
+//let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -22,6 +22,7 @@ let id=0
 let start=false
 let objs=[]
 let players=[]
+console.log(typeof players)
 
 
 
@@ -34,7 +35,6 @@ function init(){
     socket_init()
 
     controler.on()
-    console.log(controler.btn_position)
 
     window.addEventListener('resize',(e)=>{
         ww=innerWidth
@@ -133,6 +133,12 @@ function socket_init(){
         id=data.id
     })
     socket.on('update',(data)=>{
+        for(let i=0;i<objs.length;i++){
+            objs[i]=Object.assign({},objs[i],data[i])
+        }
+        
+    })
+    socket.on('create',(data)=>{
         objs=data
     })
     socket.on('end',(data)=>{
