@@ -77,7 +77,7 @@ io.on('connection',(socket)=>{
 	})
 })
 //Game
-let fps=10
+let fps=50
 let objs=[]
 let players=[]
 let walls=[]
