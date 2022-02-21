@@ -97,6 +97,13 @@ class world{
 	update(time){
 		let time_=time/this.iteration
 		for(let k=0;k<this.iteration;k++){
+			//約束
+			for(let i of this.constraint){
+				let dis=i.a.position.add(i.ap).minus(i.b.position.add(i.bp))
+				let ff=(dis.long()-i.origin_dis)*i.count
+				i.a.velocity.add_in(new vec2(0,0).set(ff/i.a.mass,dis.deg()+Math.PI))
+				i.b.velocity.add_in(new vec2(0,0).set(ff/i.b.mass,dis.deg()))
+			}
 			//重力及阻力
 			for(let i of this.objs){
 				i.velocity.x*=(1-i.resistance.x)**(time_/1000)

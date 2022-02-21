@@ -52,11 +52,10 @@ io.on('connection',(socket)=>{
 		for(let i=0;i<players.length;i++){
 			arr.push(players[i].name)
 		}
-		io.emit('rank',JSON.stringify(arr))
+		io.emit('rank',arr)
 
 	})
 	socket.on('update',(data)=>{
-		data=JSON.parse(data)
 		let obj=find_obj_by_id(socket.id)
 		if(obj){
 			if(data.position){
@@ -134,14 +133,14 @@ function create_client_message(objs){
     for(let i of objs){
 		let obj
 		if(i.type==='rect'){
-			obj={id:i.id,name:i.name,type:i.type,position:i.position,scale:i.scale,color:i.color}
+			obj={id:i.id,name:i.name,type:i.type,position:{x:i.position.x,y:i.position.y},scale:{x:i.scale.x,y:i.scale.y},color:i.color}
 		}else if(i.type==='ball'){
-			obj={id:i.id,name:i.name,type:i.type,position:i.position,radius:i.radius}
+			obj={id:i.id,name:i.name,type:i.type,position:{x:i.position.x,y:i.position.y},radius:i.radius}
 		}
         
         arr.push(obj)
     }
-    return JSON.stringify(arr)
+    return arr
 
 }
 function gameover(socket){

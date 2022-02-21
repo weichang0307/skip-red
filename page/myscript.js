@@ -1,7 +1,7 @@
 
 
-//let socket = io('ws://localhost:3000')
-let socket = io('wss://'+location.hostname) 
+let socket = io('ws://localhost:3000')
+//let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -56,9 +56,9 @@ function init(){
 function update(){
     if(id!==0&&controler.btn_position.long()!==0&&start){
         let mes={
-            velocity:controler.btn_position.scale(0.001)
+            velocity:{x:controler.btn_position.x/1000,y:controler.btn_position.y/1000}
         }
-        socket.emit('update',JSON.stringify(mes))
+        socket.emit('update',mes)
         
     }
     
@@ -133,13 +133,13 @@ function socket_init(){
         id=data.id
     })
     socket.on('update',(data)=>{
-        objs=JSON.parse(data)
+        objs=data
     })
     socket.on('end',(data)=>{
         end_game()
     })
     socket.on('rank',(data)=>{
-        players=JSON.parse(data)
+        players=data
     })
 }
 function start_game(){
