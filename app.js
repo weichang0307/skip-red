@@ -84,7 +84,7 @@ let walls=[]
 let vec2=require('./vec2_module')
 let Physic=require('./physic_module')
 const res = require('express/lib/response')
-let world=new Physic.world(0,0,1)
+let world=new Physic.world(0,0,100)
 let space={x:10000,y:10000}
 function init(){
 	
