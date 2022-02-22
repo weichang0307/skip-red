@@ -138,7 +138,7 @@ function socket_init(){
         for(let i=0;i<objs.length;i++){
             objs[i].position=data[i].position
         }
-	socket.emit('req_up',1)
+	setTimeout(()=>{socket.emit('req_up',1)},20)
         
     })
     socket.on('create',(data)=>{
