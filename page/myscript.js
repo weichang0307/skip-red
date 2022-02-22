@@ -123,7 +123,6 @@ function draw(){
             ctx.fillText(i+1+'. '+players[i],ww-200,i*30+20)
         }
     }
-    requestAnimationFrame(draw)
 }
 
 function socket_init(){
@@ -136,6 +135,7 @@ function socket_init(){
         for(let i=0;i<objs.length;i++){
             objs[i].position=data[i].position
         }
+	draw()
         
     })
     socket.on('create',(data)=>{
@@ -238,4 +238,3 @@ function draw_helper(obj,fill=true,through=1,ctx_=ctx){
 
 init()
 setInterval(update,1000/fps);
-draw()
