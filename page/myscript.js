@@ -67,7 +67,7 @@ function update(){
 }
 
 function draw(){
-    socket.emit('req_up',1)
+    
     for(let i of objs){
         if(i.id===id){
             controler.position.x+=i.position.x-camera.position.x
@@ -123,6 +123,7 @@ function draw(){
             ctx.fillText(i+1+'. '+players[i],ww-200,i*30+20)
         }
     }
+    socket.emit('req_up',1)
     requestAnimationFrame(draw)
 }
 
