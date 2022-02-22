@@ -127,26 +127,26 @@ function draw(){
 
 function socket_init(){
     socket.on('connect',(e)=>{
+	    socket.on('init',(data)=>{
+		id=data.id
+	    })
+	    socket.on('update',(data)=>{
+		for(let i=0;i<objs.length;i++){
+		    objs[i].position=data[i].position
+		}
+
+	    })
+	    socket.on('create',(data)=>{
+		objs=data
+	    })
+	    socket.on('end',(data)=>{
+		end_game()
+	    })
+	    socket.on('rank',(data)=>{
+		players=data
+	    })  
     })
-    socket.on('init',(data)=>{
-        id=data.id
-    })
-    socket.on('update',(data)=>{
-        for(let i=0;i<objs.length;i++){
-            objs[i].position=data[i].position
-        }
-	draw()
-        
-    })
-    socket.on('create',(data)=>{
-        objs=data
-    })
-    socket.on('end',(data)=>{
-        end_game()
-    })
-    socket.on('rank',(data)=>{
-        players=data
-    })
+    
 }
 function start_game(){
     if(start===false&&inputer.value!==''){
@@ -238,3 +238,4 @@ function draw_helper(obj,fill=true,through=1,ctx_=ctx){
 
 init()
 setInterval(update,1000/fps);
+setInterval(draw,20);
