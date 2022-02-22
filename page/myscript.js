@@ -1,7 +1,7 @@
 
 
-//let socket = io('ws://localhost:3000')
-let socket = io('wss://skip-red.herokuapp.com/') 
+let socket = io('ws://localhost:3000')
+//let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -67,7 +67,7 @@ function update(){
 }
 
 function draw(){
-    
+    socket.emit('req_up',1)
     for(let i of objs){
         if(i.id===id){
             controler.position.x+=i.position.x-camera.position.x
@@ -134,7 +134,7 @@ function socket_init(){
     })
     socket.on('update',(data)=>{
         for(let i=0;i<objs.length;i++){
-            objs[i]=Object.assign({},objs[i],data[i])
+            objs[i].position=data[i].position
         }
         
     })
