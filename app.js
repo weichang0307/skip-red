@@ -75,10 +75,6 @@ io.on('connection',(socket)=>{
 		console.log(reason)
 		gameover(socket)
 	})
-	socket.on('req_up',(data)=>{
-		let message=update_message(objs)
-		io.emit('update',message)
-	})
 })
 //Game
 let fps=50
@@ -127,8 +123,8 @@ function init(){
 function update(){
 
 	world.update(1000/fps)
-	//let message=update_message(objs)
-	//io.emit('update',message)
+	let message=update_message(objs)
+	io.emit('update',message)
 		
     
 }

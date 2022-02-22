@@ -1,7 +1,7 @@
 
 
-//let socket = io('ws://localhost:3000')
-let socket = io('wss://'+location.hostname) 
+let socket = io('ws://localhost:3000')
+//let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -123,12 +123,10 @@ function draw(){
             ctx.fillText(i+1+'. '+players[i],ww-200,i*30+20)
         }
     }
-    
     requestAnimationFrame(draw)
 }
 
 function socket_init(){
-    socket.emit('req_up',1)
     socket.on('connect',(e)=>{
     })
     socket.on('init',(data)=>{
@@ -138,8 +136,6 @@ function socket_init(){
         for(let i=0;i<objs.length;i++){
             objs[i].position=data[i].position
         }
-	console.log(1)
-	setTimeout(()=>{socket.emit('req_up',1)},20)
         
     })
     socket.on('create',(data)=>{
