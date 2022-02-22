@@ -123,7 +123,7 @@ function draw(){
             ctx.fillText(i+1+'. '+players[i],ww-200,i*30+20)
         }
     }
-    socket.emit('req_up',1)
+    
     requestAnimationFrame(draw)
 }
 
@@ -137,6 +137,7 @@ function socket_init(){
         for(let i=0;i<objs.length;i++){
             objs[i].position=data[i].position
         }
+	requestAnimationFrame(()=>{socket.emit('req_up',1)})
         
     })
     socket.on('create',(data)=>{
