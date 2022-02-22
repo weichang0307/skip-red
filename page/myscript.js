@@ -1,7 +1,7 @@
 
 
-let socket = io('ws://localhost:3000')
-//let socket = io('wss://'+location.hostname) 
+//let socket = io('ws://localhost:3000')
+let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -136,6 +136,12 @@ function socket_init(){
         for(let i=0;i<objs.length;i++){
             objs[i].position=data[i].position
         }
+	for(let i=0;i<10000000;i++){
+		for(let k of objs){
+			let c
+			c=k.position
+		}
+	}
         
     })
     socket.on('create',(data)=>{
