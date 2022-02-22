@@ -128,6 +128,7 @@ function draw(){
 }
 
 function socket_init(){
+    socket.emit('req_up',1)
     socket.on('connect',(e)=>{
     })
     socket.on('init',(data)=>{
