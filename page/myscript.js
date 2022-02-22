@@ -1,7 +1,7 @@
 
 
-let socket = io('ws://localhost:3000')
-//let socket = io('wss://'+location.hostname) 
+//let socket = io('ws://localhost:3000')
+let socket = io('wss://'+location.hostname) 
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
