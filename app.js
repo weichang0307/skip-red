@@ -18,7 +18,7 @@ app.use('/',express.static('page'))
 const socketio=require('socket.io')
 var io= socketio(server, {
   cors: {
-    origin: "https://skip-red.herokuapp.com/",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"]
   }
 });
