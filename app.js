@@ -128,7 +128,7 @@ function init(){
 function update(){
 
 	world.update(1000/fps)
-	let message=update_message(objs)
+	let message=buffer.from(update_message(objs))
 	io.volatile.emit('update',message)
 		
     
