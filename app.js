@@ -130,6 +130,7 @@ function update(){
 	world.update(1000/fps)
 	let message=update_message(objs)
 	io.volatile.emit('update',message)
+	setTimeOut(update,20)
 		
     
 }
@@ -198,4 +199,5 @@ function find_obj_by_id(id){
 
 
 init()
-setInterval(update,1000/fps)
+//setInterval(update,1000/fps)
+update()
