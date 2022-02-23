@@ -16,7 +16,12 @@ const server = app.listen(PORT,function () {
 app.use('/',express.static('page'))
 //websocket
 const socketio=require('socket.io')
-var io= socketio(server);
+var io= socketio(server, {
+  cors: {
+    origin: "https://skip-red.herokuapp.com/",
+    methods: ["GET", "POST"]
+  }
+});
 io.on('connection',(socket)=>{
 	let message=create__message(objs)
 	io.emit('create',message)
