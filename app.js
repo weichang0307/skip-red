@@ -82,7 +82,7 @@ io.on('connection',(socket)=>{
 	})
 })
 //Game
-let fps=50
+let fps=30
 let objs=[]
 let players=[]
 let walls=[]
@@ -130,7 +130,6 @@ function update(){
 	world.update(1000/fps)
 	let message=update_message(objs)
 	io.volatile.emit('update',message)
-	setTimeout(update,20)
 		
     
 }
@@ -199,5 +198,4 @@ function find_obj_by_id(id){
 
 
 init()
-//setInterval(update,1000/fps)
-update()
+setInterval(update,1000/fps)
