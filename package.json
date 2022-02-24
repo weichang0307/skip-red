@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "eiows": "^4.0.0",
     "express": "^4.17.2",
     "mongodb": "^4.3.1",
     "socket.io": "^4.4.1",

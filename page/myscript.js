@@ -1,7 +1,10 @@
 
 
 //let socket = io('ws://localhost:3000')
-let socket = io('wss://'+location.hostname) 
+
+
+//let socket = io('wss://skip-red.herokuapp.com/', { transports: ["websocket"] }) 
+let ws = new WebSocket('ws://localhost:3000')
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -58,7 +61,7 @@ function update(){
         let mes={
             velocity:{x:controler.btn_position.x/1000,y:controler.btn_position.y/1000}
         }
-        socket.emit('update',mes)
+        ws.emit('update',mes)
         
     }
     
@@ -127,37 +130,69 @@ function draw(){
 }
 
 function socket_init(){
-    socket.on('connect',(e)=>{
-    })
-    socket.on('init',(data)=>{
+    ws.listeners=[]
+    ws.on_=(type,func)=>{
+        ws.listeners.push({type:type,func:func})
+    }
+    ws.emit=(type,data)=>{
+        ws.send(JSON.stringify({type:type,data:data}))
+    }
+
+    ws.onmessage=(e)=>{
+        let data=JSON.parse(e.data)
+        for(let i of ws.listeners){
+            if(data.type===i.type){
+                i.func(data.data)
+            }
+        }
+    }
+    ws.onopen = () => {
+        console.log('open connection')
+    }
+    ws.onclose = () => {
+        console.log('close connection')
+    }
+    ws.on_('init',(data)=>{
         id=data.id
     })
-    socket.on('update',(data)=>{
-        for(let i=0;i<objs.length;i++){
+    //console.time()
+    ws.on_('update',(data)=>{
+
+        //data=Array.from(new Uint8Array(data))
+        //console.log(data)
+        
+        for(let i=0;i<data.length;i++){
             objs[i].position=data[i].position
         }
+        //console.timeEnd()
+        //console.time()
         
     })
-    socket.on('create',(data)=>{
+    ws.on_('create',(data)=>{
         objs=data
+        console.log('create')
     })
-    socket.on('end',(data)=>{
+    ws.on_('end',(data)=>{
         end_game()
     })
-    socket.on('rank',(data)=>{
+    ws.on_('rank',(data)=>{
         players=data
     })
 }
 function start_game(){
+    
     if(start===false&&inputer.value!==''){
+        console.log('start')
         inputer.off()
         btn_start.off()
         start=true
-        socket.emit('start',inputer.value) 
+        ws.emit('start',inputer.value) 
+        
     }
     
 }
 function end_game(){
+    console.log('end')
     inputer.position.x=camera.position.x
     inputer.position.y=camera.position.y
     inputer.on()
