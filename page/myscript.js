@@ -4,7 +4,7 @@
 
 
 //let socket = io('wss://skip-red.herokuapp.com/', { transports: ["websocket"] }) 
-let ws = new WebSocket('ws://localhost:3000')
+let ws = new WebSocket('ws://skip-red.herokuapp.com/')
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
