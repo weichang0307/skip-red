@@ -27,9 +27,11 @@ var io= socketio(server, {
 const SocketServer = require('ws').Server
 let wss=new SocketServer({server})
 let id=0
+let updates=[]
 wss.on('connection',(ws)=>{
 	id+=1
 	ws.id=id
+	
 	ws.on('message',(buf)=>{
 		let data=JSON.parse(buf.toString())
         for(let i of ws.listeners){
@@ -46,6 +48,7 @@ wss.on('connection',(ws)=>{
 		ws.send(JSON.stringify({type:type,data:data}))
 
 	}
+	ws.emit_('init',{id:ws.id})
 	ws.listeners=[]
 	ws.on_=(type,func)=>{
 		ws.listeners.push({type:type,func,func})
@@ -66,58 +69,53 @@ wss.on('connection',(ws)=>{
 		
 		let np=new Physic.ball(0,0,50,100,new vec2(0.5,0.5))
 		np.id=ws.id
-		np.socket=ws
+		np.name=data
+		
 		np.collision=(e)=>{
 			if(e.obj.type==='rect'){
-				if(e.obj.color[0]&&e.side==='bottom'){gameover(e.self.socket)}
-				else if(e.obj.color[1]&&e.side==='top'){gameover(e.self.socket)}
-				else if(e.obj.color[2]&&e.side==='right'){gameover(e.self.socket)}
-				else if(e.obj.color[3]&&e.side==='left'){gameover(e.self.socket)}
-				else if(e.obj.color[0]&&e.obj.color[2]&&e.side==='bottomright'){gameover(e.self.socket)}
-				else if(e.obj.color[0]&&e.obj.color[3]&&e.side==='bottomleft'){gameover(e.self.socket)}
-				else if(e.obj.color[1]&&e.obj.color[2]&&e.side==='topright'){gameover(e.self.socket)}
-				else if(e.obj.color[1]&&e.obj.color[3]&&e.side==='topleft'){gameover(e.self.socket)}
+				if(e.obj.color[0]&&e.side==='bottom'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[1]&&e.side==='top'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[2]&&e.side==='right'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[3]&&e.side==='left'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[0]&&e.obj.color[2]&&e.side==='bottomright'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[0]&&e.obj.color[3]&&e.side==='bottomleft'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[1]&&e.obj.color[2]&&e.side==='topright'){gameover(find_ws_by_id(e.self.id))}
+				else if(e.obj.color[1]&&e.obj.color[3]&&e.side==='topleft'){gameover(find_ws_by_id(e.self.id))}
 			}
 			
 
 		}
-		np.name=data
+		
 		players.push(np)
 		objs.push(np)
 		world.add(np)
-		ws.emit_('init',{id:ws.id})
+		ws.emit_('add',np)
+		
 		let arr=[]
 		for(let i=0;i<players.length;i++){
 			arr.push(players[i].name)
 		}
+		
 		ws.emit_('rank',arr)
-		let message=create__message(objs)
-		ws.emit_('create',message)
+		
 
 	})
 	ws.on_('update',(data)=>{
-		let obj=find_obj_by_id(ws.id)
-		if(obj){
-			if(data.position){
-				obj.position.add_in(data.position)
-			}
-			if(data.velocity){
-				obj.velocity.add_in(data.velocity)
-			}
-		}
+		updates.push(data)
+		
 		
 	})
 })
 
 //Game
-let fps=50
+let fps=100
+let tt=0
 let objs=[]
 let players=[]
 let walls=[]
 let vec2=require('./vec2_module')
 let Physic=require('./physic_module')
 const res = require('express/lib/response')
-const { on } = require('ws')
 let world=new Physic.world(0,0,1)
 let space={x:10000,y:10000}
 function init(){
@@ -155,13 +153,35 @@ function init(){
 	}
 }
 function update(){
-
-	world.update(1000/fps)
-	let message=update_message(objs)
-	wss.clients.forEach((ws)=>{
-		ws.emit_('update',message)
-	})
+	let tn=new Date().getTime()
+	let pp=tn-ts-10
+	ts=tn
 	
+	world.update(10+pp)
+	if(tt%100===0){
+		for(let i of updates){
+			let obj=find_obj_by_id(i.id)
+			if(obj){
+				if(i.position){
+					obj.position.add_in(i.position)
+				}
+				if(i.velocity){
+					obj.velocity.add_in(i.velocity)
+				}
+			}
+		}
+		updates=[]
+		
+		let message=update_message(objs)
+		wss.clients.forEach((ws)=>{
+			ws.emit_('update',message)
+			
+		})
+		
+	}
+	tt+=10
+	//console.timeEnd()
+	//console.time()
 		
     
 }
@@ -171,7 +191,8 @@ function update(){
 
 
 function create__message(objs){
-    let arr=[]
+	return world.objs
+	/*let arr=[]
     for(let i of objs){
 		let obj
 		if(i.type==='rect'){
@@ -182,17 +203,18 @@ function create__message(objs){
         
         arr.push(obj)
     }
-    return arr
+    return arr*/
 
 }
 function update_message(objs){
+	return world.objs/*
     let arr=[]
     for(let i of objs){
 		let obj
 		obj={id:i.id,position:{x:i.position.x,y:i.position.y}}
         arr.push(obj)
     }
-    return arr
+    return arr*/
 
 }
 function gameover(ws){
@@ -225,9 +247,32 @@ function find_obj_by_id(id){
     }
 	return null
 }
+function find_ws_by_id(id){
+	let ws=null
+	wss.clients.forEach(i=>{
+		
+		if(i.id==id){
+			ws=i
+		}
+	})
+	return ws
+}
 
 
 
 
 init()
-setInterval(update,1000/fps)
+let ts=new Date().getTime()
+setInterval(update,10)
+/*
+
+let ts=new Date().getTime()
+function dd(){
+	//console.timeEnd()
+	//console.time()
+	let tn=new Date().getTime()
+	let pp=tn-ts-10
+	ts=tn
+	setTimeout(dd,10-pp)
+}
+setTimeout(dd,10)*/

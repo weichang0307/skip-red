@@ -4,7 +4,7 @@
 
 
 //let socket = io('wss://skip-red.herokuapp.com/', { transports: ["websocket"] }) 
-let ws = new WebSocket('wss://skip-red.herokuapp.com/')
+let ws = new WebSocket('ws://localhost:3000')
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -13,7 +13,8 @@ let camera=new Camera(ww/2,wh/2)
 camera.scale.x=wh/1600
 camera.scale.y=wh/1600
 mysize()
-let fps=10
+let fps=100
+let tt=0
 
 let controler=new Controler(camera)
 let inputer=new Inputer(0,0,700,100,camera)
@@ -25,7 +26,8 @@ let id=0
 let start=false
 let objs=[]
 let players=[]
-console.log(typeof players)
+let self
+let world=new physic_world(0,0,1)
 
 
 
@@ -50,20 +52,29 @@ function init(){
     })
     window.addEventListener('keydown',(e)=>{
         if(e.key==='p'){
-            end_game()
-            socket.emit('end',{})
+            //end_game()
+            //socket.emit('end',{})
+            console.log(world.objs)
         }
     })
     
 }
 function update(){
-    if(id!==0&&controler.btn_position.long()!==0&&start){
+    if(world.objs.length>0){
+        world.update(1000/fps)
+        
+    }
+    if(id!==0&&controler.btn_position.long()!==0&&start&&tt%100===0){
         let mes={
+            id:id,
             velocity:{x:controler.btn_position.x/1000,y:controler.btn_position.y/1000}
         }
+        //self.velocity.x+=controler.btn_position.x/1000
+        //self.velocity.y+=controler.btn_position.y/1000
         ws.emit('update',mes)
         
     }
+    tt+=1000/fps
     
     
 
@@ -71,7 +82,7 @@ function update(){
 
 function draw(){
     
-    for(let i of objs){
+    for(let i of world.objs){
         if(i.id===id){
             controler.position.x+=i.position.x-camera.position.x
             controler.position.y+=i.position.y-camera.position.y
@@ -87,7 +98,7 @@ function draw(){
     grid(250,'rgb(100,100,100)',camera,2)
     
     
-    for(let i of objs){
+    for(let i of world.objs){
         draw_helper(i)
         if(i.id){
             ctx.fillStyle='white'
@@ -148,34 +159,93 @@ function socket_init(){
     }
     ws.onopen = () => {
         console.log('open connection')
+        
     }
     ws.onclose = () => {
         console.log('close connection')
     }
     ws.on_('init',(data)=>{
+        console.log('init')
         id=data.id
+        
     })
-    //console.time()
     ws.on_('update',(data)=>{
-
-        //data=Array.from(new Uint8Array(data))
-        //console.log(data)
-        
         for(let i=0;i<data.length;i++){
-            objs[i].position=data[i].position
+            world.objs[i].position.x=data[i].position.x
+            world.objs[i].position.y=data[i].position.y
+            world.objs[i].velocity.x=data[i].velocity.x
+            world.objs[i].velocity.y=data[i].velocity.y
         }
-        //console.timeEnd()
-        //console.time()
         
+
+        
+        
+    })
+    ws.on_('add',(data)=>{
+        console.log('add')
+        let nn=new physic_ball(0,0,0,0,new vec2(0,0))
+
+        nn.position.x=data.position.x
+        nn.position.y=data.position.y
+        nn.velocity.x=data.velocity.x
+        nn.velocity.y=data.velocity.y
+        nn.resistance.x=data.resistance.x
+        nn.resistance.y=data.resistance.y
+
+        nn.radius=data.radius
+        nn.mass=data.mass
+        nn.id=data.id
+        nn.name=data.name
+        console.log(nn)
+        self=nn
+        world.add(self)
+        console.log(world.objs)
     })
     ws.on_('create',(data)=>{
-        objs=data
         console.log('create')
+        world.objs=[]
+        for(let i of data){
+            if(i.type==='rect'){
+                let nn=new physic_rect(0,0,0,0,0,new vec2(0,0))
+                nn.position.x=i.position.x
+                nn.position.y=i.position.y
+                nn.velocity.x=i.velocity.x
+                nn.velocity.y=i.velocity.y
+                nn.scale.x=i.scale.x
+                nn.scale.y=i.scale.y
+                nn.resistance.x=i.resistance.x
+                nn.resistance.y=i.resistance.y
+                
+                nn.mass=i.mass
+                nn.id=i.id
+                nn.color=i.color
+                world.add(nn)
+            }else{
+                let nn=new physic_ball(0,0,0,0,new vec2(0,0))
+
+                nn.position.x=i.position.x
+                nn.position.y=i.position.y
+                nn.velocity.x=i.velocity.x
+                nn.velocity.y=i.velocity.y
+                nn.resistance.x=i.resistance.x
+                nn.resistance.y=i.resistance.y
+
+                nn.radius=i.radius
+                nn.mass=i.mass
+                nn.id=i.id
+                nn.color=i.color
+                world.add(nn)
+            }
+        }
+        console.log(world.objs)
+        
     })
     ws.on_('end',(data)=>{
+        console.log('end')
         end_game()
     })
     ws.on_('rank',(data)=>{
+        console.log('rank')
         players=data
     })
 }
