@@ -4,7 +4,7 @@
 
 
 //let socket = io('wss://skip-red.herokuapp.com/', { transports: ["websocket"] }) 
-let ws = new WebSocket('wss://skip-red.herokuapp.com/')
+let ws = new WebSocket('ws://localhost:3000')
 let canvas=document.getElementById('canvas')
 let ctx=canvas.getContext('2d')
 let ww=innerWidth
@@ -56,6 +56,7 @@ function init(){
             //socket.emit('end',{})
             console.log(world.objs)
         }
+        console.log(world.objs[0].position.y)
     })
     
 }
@@ -195,10 +196,9 @@ function socket_init(){
         nn.radius=data.radius
         nn.mass=data.mass
         nn.id=data.id
+        id=data.id
         nn.name=data.name
-        console.log(nn)
         self=nn
-        world.add(self)
         console.log(world.objs)
     })
     ws.on_('create',(data)=>{
@@ -215,8 +215,10 @@ function socket_init(){
                 nn.scale.y=i.scale.y
                 nn.resistance.x=i.resistance.x
                 nn.resistance.y=i.resistance.y
-                
                 nn.mass=i.mass
+                if(nn.mass===null){
+                    nn.mass=Infinity
+                }
                 nn.id=i.id
                 nn.color=i.color
                 world.add(nn)
@@ -233,8 +235,10 @@ function socket_init(){
                 nn.radius=i.radius
                 nn.mass=i.mass
                 nn.id=i.id
+                nn.name=i.name
                 nn.color=i.color
                 world.add(nn)
+                
             }
         }
         console.log(world.objs)

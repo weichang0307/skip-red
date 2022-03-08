@@ -237,8 +237,8 @@ function collision_ball_ball(A,B){
 			B.velocity.add_in(vAB_normal.scale(2*my_calculate(B.mass,A.mass)))
 			A.velocity.minus_in(vAB_normal.scale(2*my_calculate(A.mass,B.mass)))
 			//call back
-			A.collision({deg:pdeg,obj:B})
-			B.collision({deg:pdeg+Math.PI,obj:A})
+			A.collision({deg:pAB.deg(),obj:B})
+			B.collision({deg:pAB.deg()+Math.PI,obj:A})
 			
 			
 		}
@@ -263,11 +263,11 @@ function collision_ball_rect(A,B){
 			B.velocity.y+=2*vAB.y*my_calculate(A.mass,B.mass)
 			//call back
 			if(pAB.y>0){
-				A.collision({side:"bottom",obj:B})
-				B.collision({side:"top",obj:A})
+				A.collision({side:"top",obj:B,self:A})
+				B.collision({side:"bottom",obj:A,self:B})
 			}else{
-				A.collision({side:"top",obj:B})
-				B.collision({side:"bottom",obj:A})
+				A.collision({side:"bottom",obj:B,self:A})
+				B.collision({side:"top",obj:A,self:B})
 			}
 		}
 	//若是Y距離<B的高/2 且 X距離<B的寬/2+A的半徑 則判定為A與B的側邊接觸
@@ -278,11 +278,11 @@ function collision_ball_rect(A,B){
 			B.velocity.x+=2*vAB.x*my_calculate(A.mass,B.mass)
 			//call back
 			if(pAB.x>0){
-				A.collision({side:"left",obj:B})
-				B.collision({side:"right",obj:A})
+				A.collision({side:"left",obj:B,self:A})
+				B.collision({side:"right",obj:A,self:B})
 			}else{
-				A.collision({side:"right",obj:B})
-				B.collision({side:"left",obj:A})
+				A.collision({side:"right",obj:B,self:A})
+				B.collision({side:"left",obj:A,self:B})
 			}
 		}
 	//否則可能為A與B的角接觸
@@ -301,19 +301,25 @@ function collision_ball_rect(A,B){
 				B.velocity.add_in(vABcorner_normal.scale(2*my_calculate(A.mass,B.mass)))
 				A.velocity.minus_in(vABcorner_normal.scale(2*my_calculate(B.mass,A.mass)))
 				//call back
-				A.collision({deg:vABcorner_normal.deg(),obj:A})
-				let str=''
+				
+				let strA=''
+				let strB=''
 				if(pAB.y>0){
-					str+='top'
+					strA+='top'
+					strB+='bottom'
 				}else{
-					str+='bottom'
+					strA+='bottom'
+					strB+='top'
 				}
 				if(pAB.x>0){
-					str+='right'
+					strA+='left'
+					strB+='right'
 				}else{
-					str+='left'
+					strA+='right'
+					strB+='left'
 				}
-				B.collision({side:str,obj:B})
+				A.collision({deg:vABcorner_normal.deg(),obj:B,side:strA,self:A})
+				B.collision({side:strB,obj:A,self:B})
 				
 				
 			}

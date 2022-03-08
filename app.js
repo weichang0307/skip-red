@@ -90,13 +90,17 @@ wss.on('connection',(ws)=>{
 		objs.push(np)
 		world.add(np)
 		ws.emit_('add',np)
+		let message=create__message(objs)
+		
 		
 		let arr=[]
 		for(let i=0;i<players.length;i++){
 			arr.push(players[i].name)
 		}
-		
-		ws.emit_('rank',arr)
+		wss.clients.forEach(i=>{
+			i.emit_('create',message)
+			i.emit_('rank',arr)
+		})
 		
 
 	})
@@ -235,9 +239,13 @@ function gameover(ws){
 	for(let i=0;i<players.length;i++){
 		arr.push(players[i].name)
 	}
-	ws.emit_('rank',arr)
+	
 	let message=create__message(objs)
-	ws.emit_('create',message)
+	wss.clients.forEach(i=>{
+		i.emit_('create',message)
+		i.emit_('rank',arr)
+	})
+	
 }
 function find_obj_by_id(id){
     for(let i of objs){
@@ -251,7 +259,7 @@ function find_ws_by_id(id){
 	let ws=null
 	wss.clients.forEach(i=>{
 		
-		if(i.id==id){
+		if(i.id===id){
 			ws=i
 		}
 	})
